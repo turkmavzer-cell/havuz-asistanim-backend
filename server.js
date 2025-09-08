@@ -8,14 +8,14 @@ app.use(express.json()); // Sunucunun gelen JSON verilerini işlemesini sağlar
 const port = 3000; // Sunucumuzun çalışacağı port
 
 // =================================================================
-// --- SUPABASE VERİTABANI BAĞLANTI AYARLARI ---
+// --- SUPABASE VERİTABANI BAĞLANTI AYARLARI (POOLER VERSİYONU) ---
 // =================================================================
 const pool = new Pool({
-  user: 'postgres',
-  host: 'db.gyiflbirwhkdetxoceyw.supabase.co',
+  user: 'postgres.gyiflbirwhkdetxoceyw', // DİKKAT: Yeni kullanıcı adı
+  host: 'aws-1-eu-central-1.pooler.supabase.com',
   database: 'postgres',
-  password: '1837837', // Kendi belirlediğimiz şifre
-  port: 5432,
+  password: '1837837', // Şifremiz aynı
+  port: 6543, // Yeni port
   ssl: true 
 });
 
