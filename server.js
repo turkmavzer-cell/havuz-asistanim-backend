@@ -18,7 +18,9 @@ const pool = new Pool({
   database: 'postgres',
   password: '1837837', // Şifremiz aynı
   port: 6543, // Yeni port
-  ssl: true 
+  ssl: {
+  rejectUnauthorized: false
+}
 });
 
 // Veritabanına bağlanmayı deniyoruz
