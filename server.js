@@ -80,7 +80,49 @@ app.post('/api/pools', async (req, res) => {
     res.status(500).json({ error: 'Sunucu hatası oluştu.' });
   }
 });
+// GET -> Belirli bir kullanıcının bilgilerini ve tüm havuzlarını getirir
+// Örn: /api/users/google-12345/data
+app.get('/api/users/:userId/data', async (req, res) => {
+  const { userId } = req.params;
 
+  try {
+    // 1. Supabase'den kullanıcı bilgilerini çek
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single(); // .single() ile tek bir kullanıcı objesi dönmesini sağlıyoruz
+
+    if (userError && userError.code !== 'PGRST116') {
+        // PGRST116: a single() call did not return any rows. Bu beklenen bir durum olabilir.
+        throw userError;
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
+    }
+
+    // 2. Supabase'den o kullanıcıya ait tüm havuzları çek
+    const { data: pools, error: poolsError } = await supabase
+      .from('pools')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (poolsError) {
+      throw poolsError;
+    }
+
+    // 3. Kullanıcı ve havuz bilgilerini tek bir obje olarak birleştirip gönder
+    res.status(200).json({
+      user: user,
+      pools: pools || [] // Havuzu yoksa boş bir dizi gönder
+    });
+
+  } catch (error) {
+    console.error('Kullanıcı verisi alınırken hata:', error);
+    res.status(500).json({ message: 'Sunucu hatası', error: error.message });
+  }
+});
 app.delete('/api/pools/:poolId', async (req, res) => {
     try {
         const { poolId } = req.params;
