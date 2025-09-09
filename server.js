@@ -5,7 +5,12 @@ const cors = require('cors');
 
 // Express uygulamasını oluşturuyoruz
 const app = express();
-app.use(cors()); // CORS middleware'ini etkinleştir
+// Geliştirme ortamından (Live Server) gelen isteklere izin ver
+const corsOptions = {
+  origin: ['http://127.0.0.1:5500', 'http://localhost:5500'],
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 app.use(express.json()); // Sunucunun gelen JSON verilerini işlemesini sağlar
 const port = process.env.PORT || 3000; // Render.com için port ayarı
 
