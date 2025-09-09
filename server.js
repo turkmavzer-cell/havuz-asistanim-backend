@@ -88,7 +88,7 @@ app.get('/api/users/:userId/data', async (req, res) => {
 
   try {
     // 1. Veritabanından kullanıcı bilgilerini çek
-    const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+    const userResult = await pool.query('SELECT * FROM users WHERE user_id = $1', [userId]);
 
     if (userResult.rowCount === 0) {
       return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
