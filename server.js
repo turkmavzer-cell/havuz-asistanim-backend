@@ -82,45 +82,32 @@ app.post('/api/pools', async (req, res) => {
 });
 // GET -> Belirli bir kullanıcının bilgilerini ve tüm havuzlarını getirir
 // Örn: /api/users/google-12345/data
+// GET -> Belirli bir kullanıcının bilgilerini ve tüm havuzlarını getirir
 app.get('/api/users/:userId/data', async (req, res) => {
   const { userId } = req.params;
 
   try {
-    // 1. Supabase'den kullanıcı bilgilerini çek
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single(); // .single() ile tek bir kullanıcı objesi dönmesini sağlıyoruz
+    // 1. Veritabanından kullanıcı bilgilerini çek
+    const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
 
-    if (userError && userError.code !== 'PGRST116') {
-        // PGRST116: a single() call did not return any rows. Bu beklenen bir durum olabilir.
-        throw userError;
-    }
-
-    if (!user) {
+    if (userResult.rowCount === 0) {
       return res.status(404).json({ message: 'Kullanıcı bulunamadı.' });
     }
+    const user = userResult.rows[0];
 
-    // 2. Supabase'den o kullanıcıya ait tüm havuzları çek
-    const { data: pools, error: poolsError } = await supabase
-      .from('pools')
-      .select('*')
-      .eq('user_id', userId);
-
-    if (poolsError) {
-      throw poolsError;
-    }
+    // 2. Veritabanından o kullanıcıya ait tüm havuzları çek
+    const poolsResult = await pool.query('SELECT * FROM pools WHERE user_id = $1', [userId]);
+    const pools = poolsResult.rows;
 
     // 3. Kullanıcı ve havuz bilgilerini tek bir obje olarak birleştirip gönder
     res.status(200).json({
       user: user,
-      pools: pools || [] // Havuzu yoksa boş bir dizi gönder
+      pools: pools || []
     });
 
-  } catch (error) {
-    console.error('Kullanıcı verisi alınırken hata:', error);
-    res.status(500).json({ message: 'Sunucu hatası', error: error.message });
+  } catch (err) {
+    console.error('Kullanıcı verisi alınırken hata:', err.message);
+    res.status(500).json({ error: 'Sunucu hatası oluştu.' });
   }
 });
 app.delete('/api/pools/:poolId', async (req, res) => {
