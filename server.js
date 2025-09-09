@@ -1,9 +1,11 @@
 // Gerekli kütüphaneleri projemize dahil ediyoruz
 const express = require('express');
 const { Pool } = require('pg');
+const cors = require('cors');
 
 // Express uygulamasını oluşturuyoruz
 const app = express();
+app.use(cors()); // CORS middleware'ini etkinleştir
 app.use(express.json()); // Sunucunun gelen JSON verilerini işlemesini sağlar
 const port = 3000; // Sunucumuzun çalışacağı port
 
